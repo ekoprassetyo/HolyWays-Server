@@ -2,6 +2,7 @@ package routes
 
 import (
 	"holyways/handlers"
+	"holyways/pkg/middleware"
 	"holyways/pkg/mysql"
 	"holyways/repositories"
 
@@ -14,5 +15,6 @@ func AuthRoutes(r *mux.Router) {
 
 	r.HandleFunc("/register", h.Register).Methods("POST")
 	r.HandleFunc("/login", h.Login).Methods("POST")
+	r.HandleFunc("/check-auth", middleware.Auth(h.CheckAuth)).Methods("GET")
 
 }

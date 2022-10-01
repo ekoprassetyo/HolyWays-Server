@@ -13,6 +13,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// mengambil repository yang sudah di export oleh UserRepository
 type handler struct {
 	UserRepository repositories.UserRepository
 }

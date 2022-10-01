@@ -11,7 +11,7 @@ var DB *gorm.DB
 
 func DatabaseInit() {
 	var err error
-	dsn := "root:@tcp(localhost:3306)/holyways"
+	dsn := "root:@tcp(localhost:3306)/holyways?parseTime=true"
 
 	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
