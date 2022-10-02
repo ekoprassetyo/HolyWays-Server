@@ -36,10 +36,23 @@ func HandlerTransaction(TransactionRepository repositories.TransactionRepository
 func (h *handlerTransaction) FindTransaction(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	Transactions, err := h.TransactionRepository.FindTransaction()
+	userInfo := r.Context().Value("userInfo").(jwt.MapClaims)
+	userId := int(userInfo["id"].(float64))
+
+	Transactions, err := h.TransactionRepository.FindTransaction(userId)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(err.Error())
+	}
+
+	var responseTransaction []Transactionsdto.TransactionResponse
+	for _, t := range Transactions {
+		responseTransaction = append(responseTransaction, convertResponseTransaction(t))
+	}
+
+	for i, t := range responseTransaction {
+		imagePath := os.Getenv("PATH_FILE") + t.Fund.Thumbnail
+		responseTransaction[i].Fund.Thumbnail = imagePath
 	}
 
 	// for i, p := range Transactions {
@@ -55,14 +68,12 @@ func (h *handlerTransaction) GetTransaction(w http.ResponseWriter, r *http.Reque
 	w.Header().Set("Content-Type", "application/json")
 
 	id, _ := strconv.Atoi(mux.Vars(r)["id"])
-
 	Transaction, err := h.TransactionRepository.GetTransaction(id)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
 		json.NewEncoder(w).Encode(response)
 	}
-
 	// Transaction.ProofAttachment = path_file + Transaction.ProofAttachment
 
 	w.WriteHeader(http.StatusOK)
@@ -78,9 +89,8 @@ func (h *handlerTransaction) CreateTransaction(w http.ResponseWriter, r *http.Re
 
 	currentTime := time.Now()
 
-	request := new(Transactionsdto.TransactionCreateRequest)
+	var request Transactionsdto.TransactionCreateRequest
 	err := json.NewDecoder(r.Body).Decode(&request)
-
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
@@ -111,6 +121,7 @@ func (h *handlerTransaction) CreateTransaction(w http.ResponseWriter, r *http.Re
 		ID:           TransactionId,
 		DonateAmount: request.DonateAmount,
 		UserID:       userId,
+		FundID:       request.FundID,
 		Status:       "pending",
 		CreatedAt:    currentTime,
 	}
@@ -280,5 +291,6 @@ func convertResponseTransaction(u models.Transaction) Transactionsdto.Transactio
 		DonateAmount: u.DonateAmount,
 		Status:       u.Status,
 		CreatedAt:    u.CreatedAt,
+		Fund:         u.Fund,
 	}
 }

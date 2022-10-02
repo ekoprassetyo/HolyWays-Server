@@ -20,7 +20,7 @@ func RepositoryUser(db *gorm.DB) *repository {
 
 func (r *repository) FindUser() ([]models.User, error) {
 	var users []models.User
-	err := r.db.Preload("Transaction").Find(&users).Error
+	err := r.db.Preload("Transaction").Preload("Transaction.Fund").Find(&users).Error
 
 	return users, err
 }

@@ -7,7 +7,7 @@ import (
 )
 
 type TransactionRepository interface {
-	FindTransaction() ([]models.Transaction, error)
+	FindTransaction(ID int) ([]models.Transaction, error)
 	GetTransaction(ID int) (models.Transaction, error)
 	CreateTransaction(transaction models.Transaction) (models.Transaction, error)
 	UpdateTransaction(status string, ID string) error
@@ -19,16 +19,16 @@ func RepositoryTransaction(db *gorm.DB) *repository {
 	return &repository{db}
 }
 
-func (r *repository) FindTransaction() ([]models.Transaction, error) {
+func (r *repository) FindTransaction(ID int) ([]models.Transaction, error) {
 	var transactions []models.Transaction
-	err := r.db.Preload("User").Find(&transactions).Error
+	err := r.db.Preload("Fund").Preload("User").Find(&transactions, "user_id", ID).Error
 
 	return transactions, err
 }
 
 func (r *repository) GetTransaction(ID int) (models.Transaction, error) {
 	var transaction models.Transaction
-	err := r.db.Preload("User").First(&transaction, ID).Error
+	err := r.db.Preload("Fund").Preload("User").First(&transaction, ID).Error
 
 	return transaction, err
 }
@@ -41,7 +41,7 @@ func (r *repository) GetOneTransaction(ID string) (models.Transaction, error) {
 }
 
 func (r *repository) CreateTransaction(transaction models.Transaction) (models.Transaction, error) {
-	err := r.db.Preload("User").Create(&transaction).Error
+	err := r.db.Preload("User").Preload("Fund").Create(&transaction).Error
 
 	return transaction, err
 }
@@ -53,7 +53,7 @@ func (r *repository) UpdateTransaction(status string, ID string) error {
 	// If is different & Status is "success" decrement product quantity
 	if status != transaction.Status && status == "success" {
 		var user models.User
-		r.db.First(&user, transaction.User.ID)
+		r.db.First(&user, transaction.UserID)
 		// user.Subscribe = true
 		r.db.Save(&user)
 	}

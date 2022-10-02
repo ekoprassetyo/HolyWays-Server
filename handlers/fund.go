@@ -48,6 +48,7 @@ func (h *handlerFund) GetFund(w http.ResponseWriter, r *http.Request) {
 
 	id, _ := strconv.Atoi(mux.Vars(r)["id"])
 
+	var Fund models.Fund
 	Fund, err := h.FundRepository.GetFund(id)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -55,7 +56,7 @@ func (h *handlerFund) GetFund(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(response)
 	}
 
-	Fund.Thumbnail = path_file + Fund.Thumbnail
+	Fund.Thumbnail = os.Getenv("PATH_ILE") + Fund.Thumbnail
 
 	w.WriteHeader(http.StatusOK)
 	response := dto.SuccessResult{Code: http.StatusOK, Data: Fund}
@@ -68,16 +69,15 @@ func (h *handlerFund) CreateFund(w http.ResponseWriter, r *http.Request) {
 	userInfo := r.Context().Value("userInfo").(jwt.MapClaims)
 	userId := int(userInfo["id"].(float64))
 
-	dataContex := r.Context().Value("image")
+	dataContex := r.Context().Value("thumbnail")
 	filename := dataContex.(string)
 
-	transaction_id, _ := strconv.Atoi(r.FormValue("transaction_id"))
+	// transaction_id, _ := strconv.Atoi(r.FormValue("transaction_id"))
 	request := Fundsdto.FundCreateRequest{
-		Title:         r.FormValue("title"),
-		Thumbnail:     filename,
-		Goal:          r.FormValue("goal"),
-		Description:   r.FormValue("description"),
-		TransactionID: transaction_id,
+		Title:       r.FormValue("title"),
+		Thumbnail:   filename,
+		Goal:        r.FormValue("goals"),
+		Description: r.FormValue("description"),
 	}
 
 	validation := validator.New()
@@ -89,14 +89,12 @@ func (h *handlerFund) CreateFund(w http.ResponseWriter, r *http.Request) {
 	}
 
 	Fund := models.Fund{
-		Title:         request.Title,
-		Thumbnail:     request.Thumbnail,
-		Goal:          request.Goal,
-		Description:   request.Description,
-		TransactionID: transaction_id,
-		Transaction:   models.TransactionResponseUser{},
-		UserID:        userId,
-		User:          models.UserTransactionResponse{},
+		Title:       request.Title,
+		Thumbnail:   filename,
+		Goal:        request.Goal,
+		Description: request.Description,
+		UserID:      userId,
+		// User: models.UserTransactionResponse{},
 	}
 
 	data, err := h.FundRepository.CreateFund(Fund)
