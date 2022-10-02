@@ -14,6 +14,7 @@ type LoginResponse struct {
 }
 
 type CheckAuthResponse struct {
+	ID       int    `gorm:"type:int" json:"id"`
 	Fullname string `gorm:"type:varchar(300)" json:"fullName"`
 	Email    string `gorm:"type:varchar(300)" json:"email"`
 	Token    string `gorm:"type:varchar(300)" json:"token"`

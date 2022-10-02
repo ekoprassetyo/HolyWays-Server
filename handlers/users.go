@@ -166,11 +166,13 @@ func (h *handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-func convertResponse(u models.User) Usersdto.UserResponse {
-	return Usersdto.UserResponse{
-		ID:       u.ID,
-		Fullname: u.Fullname,
-		Email:    u.Email,
-		Phone:    u.Phone,
+func convertResponse(u models.User) models.User {
+	return models.User{
+		ID:          u.ID,
+		Fullname:    u.Fullname,
+		Email:       u.Email,
+		Phone:       u.Phone,
+		Fund:        u.Fund,
+		Transaction: u.Transaction,
 	}
 }

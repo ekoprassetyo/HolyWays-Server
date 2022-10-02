@@ -7,7 +7,7 @@ import (
 )
 
 type TransactionRepository interface {
-	FindTransaction(ID int) ([]models.Transaction, error)
+	FindTransaction() ([]models.Transaction, error)
 	GetTransaction(ID int) (models.Transaction, error)
 	CreateTransaction(transaction models.Transaction) (models.Transaction, error)
 	UpdateTransaction(status string, ID string) error
@@ -19,9 +19,9 @@ func RepositoryTransaction(db *gorm.DB) *repository {
 	return &repository{db}
 }
 
-func (r *repository) FindTransaction(ID int) ([]models.Transaction, error) {
+func (r *repository) FindTransaction() ([]models.Transaction, error) {
 	var transactions []models.Transaction
-	err := r.db.Preload("Fund").Preload("User").Find(&transactions, "user_id", ID).Error
+	err := r.db.Preload("Fund").Preload("User").Find(&transactions).Error
 
 	return transactions, err
 }

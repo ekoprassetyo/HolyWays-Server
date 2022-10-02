@@ -36,10 +36,7 @@ func HandlerTransaction(TransactionRepository repositories.TransactionRepository
 func (h *handlerTransaction) FindTransaction(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	userInfo := r.Context().Value("userInfo").(jwt.MapClaims)
-	userId := int(userInfo["id"].(float64))
-
-	Transactions, err := h.TransactionRepository.FindTransaction(userId)
+	Transactions, err := h.TransactionRepository.FindTransaction()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(err.Error())
@@ -60,7 +57,7 @@ func (h *handlerTransaction) FindTransaction(w http.ResponseWriter, r *http.Requ
 	// }
 
 	w.WriteHeader(http.StatusOK)
-	response := dto.SuccessResult{Code: http.StatusOK, Data: Transactions}
+	response := dto.SuccessResult{Code: http.StatusOK, Data: responseTransaction}
 	json.NewEncoder(w).Encode(response)
 }
 
@@ -106,6 +103,15 @@ func (h *handlerTransaction) CreateTransaction(w http.ResponseWriter, r *http.Re
 	}
 
 	// Create unique transaction id
+
+	// transaction, err := h.TransactionRepository.GetTransaction(transaction.ID)
+	// if err != nil {
+	// 	w.WriteHeader(http.StatusInternalServerError)
+	// 	response := dto.ErrorResult{Code: http.StatusInternalServerError, Message: err.Error()}
+	// 	json.NewEncoder(w).Encode(response)
+	// 	return
+	// }
+
 	var TransIdIsMatch = false
 	var TransactionId int
 	for !TransIdIsMatch {
@@ -131,14 +137,6 @@ func (h *handlerTransaction) CreateTransaction(w http.ResponseWriter, r *http.Re
 		w.WriteHeader(http.StatusInternalServerError)
 		response := dto.ErrorResult{Code: http.StatusInternalServerError, Message: err.Error()}
 		json.NewEncoder(w).Encode(response)
-	}
-
-	transaction, err = h.TransactionRepository.GetTransaction(transaction.ID)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		response := dto.ErrorResult{Code: http.StatusInternalServerError, Message: err.Error()}
-		json.NewEncoder(w).Encode(response)
-		return
 	}
 
 	// 1. Initiate Snap client

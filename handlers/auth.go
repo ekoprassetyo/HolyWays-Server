@@ -152,10 +152,23 @@ func (h *handlerAuth) CheckAuth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	claims := jwt.MapClaims{}
+	claims["id"] = user.ID
+	claims["exp"] = time.Now().Add(time.Hour * 2).Unix() // 2 jam expired
+
+	token, errGenerateToken := jwtToken.GenerateToken(&claims)
+	if errGenerateToken != nil {
+		log.Println(errGenerateToken)
+		fmt.Println("Unauthorize")
+		return
+	}
+
 	CheckAuthResponse := authdto.CheckAuthResponse{
+		ID:       user.ID,
 		Fullname: user.Fullname,
 		Email:    user.Email,
 		Phone:    user.Phone,
+		Token:    token,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
