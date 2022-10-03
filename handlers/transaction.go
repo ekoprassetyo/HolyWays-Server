@@ -102,8 +102,6 @@ func (h *handlerTransaction) CreateTransaction(w http.ResponseWriter, r *http.Re
 		json.NewEncoder(w).Encode(response)
 	}
 
-	// Create unique transaction id
-
 	// transaction, err := h.TransactionRepository.GetTransaction(transaction.ID)
 	// if err != nil {
 	// 	w.WriteHeader(http.StatusInternalServerError)
@@ -112,6 +110,7 @@ func (h *handlerTransaction) CreateTransaction(w http.ResponseWriter, r *http.Re
 	// 	return
 	// }
 
+	// Create unique transaction id
 	var TransIdIsMatch = false
 	var TransactionId int
 	for !TransIdIsMatch {
