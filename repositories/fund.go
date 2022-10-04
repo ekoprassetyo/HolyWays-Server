@@ -9,6 +9,7 @@ import (
 type FundRepository interface {
 	FindFund() ([]models.Fund, error)
 	GetFund(ID int) (models.Fund, error)
+	// GetFundStatus(ID int) (models.Transaction, error)
 	CreateFund(fund models.Fund) (models.Fund, error)
 	UpdateFund(fund models.Fund) (models.Fund, error)
 	DeleteFund(fund models.Fund) (models.Fund, error)
@@ -49,3 +50,10 @@ func (r *repository) DeleteFund(fund models.Fund) (models.Fund, error) {
 
 	return fund, err
 }
+
+// func (r *repository) GetFundStatus(ID int) (models.Transaction, error) {
+// 	var trans models.Transaction
+// 	err := r.db.Find(&trans, "id =?", ID).Error
+
+// 	return trans, err
+// }

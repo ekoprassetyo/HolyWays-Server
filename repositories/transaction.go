@@ -35,7 +35,7 @@ func (r *repository) GetTransaction(ID int) (models.Transaction, error) {
 
 func (r *repository) GetOneTransaction(ID string) (models.Transaction, error) {
 	var transaction models.Transaction
-	err := r.db.Preload("User").First(&transaction, "id = ?", ID).Error
+	err := r.db.Preload("Fund").Preload("User").First(&transaction, "id = ?", ID).Error
 
 	return transaction, err
 }
